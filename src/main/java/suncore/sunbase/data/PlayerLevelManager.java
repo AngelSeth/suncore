@@ -1,5 +1,6 @@
 package suncore.sunbase.data;
 
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -51,8 +52,25 @@ public class PlayerLevelManager {
     //saving player Level, etc
     public void savePlayerData(Player player, String playerClass, int level, int experience) {
         UUID playerUUID = player.getUniqueId();
-        playerDataManager.get().set(playerUUID + "." + playerClass + ".level", level);
+        //eventually save by world
+        //World world = player.getWorld();
+        //test saving
+        //playerDataManager.get().set(playerUUID + "." + "test.path", "testValue");
+        String lvlPath = playerUUID + "." + playerClass + ".level";
+        System.out.println("Saving path: " + lvlPath);
+        playerDataManager.get().set(lvlPath, level);
         playerDataManager.get().set(playerUUID + "." + playerClass + ".experience", experience);
+        playerDataManager.save();
+    }
+
+    public void saveTestPlayerData() {
+        UUID testUUID = UUID.fromString("5af5b320-d5b9-499b-8903-9e14744438f6");
+        String testPlayerClass = "Archer";
+        int testLevel = 6;
+        int testExperience = 100;
+
+        playerDataManager.get().set(testUUID + "." + testPlayerClass + ".level", testLevel);
+        playerDataManager.get().set(testUUID + "." + testPlayerClass + ".experience", testExperience);
         playerDataManager.save();
     }
 

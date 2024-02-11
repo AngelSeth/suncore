@@ -1,14 +1,18 @@
 package suncore.sunbase;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import suncore.sunbase.data.PlayerDataManager;
 import suncore.sunbase.data.PlayerLevelManager;
+
+import java.util.UUID;
 
 public final class Main extends JavaPlugin implements Listener {
 
@@ -23,6 +27,7 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         getLogger().info("SunCore has been enabled!");
         getLogger().info("PlayerDataManager initialized: " + (playerDataManager != null));
+        playerLevelManager.saveTestPlayerData();
     }
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -32,21 +37,26 @@ public final class Main extends JavaPlugin implements Listener {
         String playerClass = "Archer";
         int level = playerLevelManager.getPlayerLevel(player, playerClass);
         playerLevelManager.setLevel(player, level);
-        player.sendMessage("Your current level as the class, " + playerClass + ", is " + level);
         int experience = playerLevelManager.getPlayerExperience(player, playerClass);
         playerLevelManager.addExperience(player, experience);
+        player.sendMessage("Your current level as the class, " + playerClass + ", is " + level);
         player.sendMessage("Your currently have " + experience + " experience points");
     }
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        UUID playerUUID = player.getUniqueId();
         //will have to read playerclass to replace "Archer"
         String playerClass = "Archer";
         //loading the data
-        int level = playerLevelManager.getPlayerLevel(player, playerClass);
-        int experience = playerLevelManager.getPlayerExperience(player, playerClass);
+        int lLevel = playerLevelManager.getLevel(player);
+        int lExperience = playerLevelManager.getExperience(player);
         //saving the data
-        playerLevelManager.savePlayerData(event.getPlayer(), playerClass, level, experience);
+        //if (playerUUID != null && playerClass != null && level >= 0 && experience >= 0) {
+            playerLevelManager.savePlayerData(event.getPlayer(), playerClass, lLevel, lExperience);
+            getLogger().info("It's working, Sugar");
+            getLogger().info("Honey, I am saving data for player: " + player.getName() + "! They are level, " + lLevel + ", and have " + lExperience + " experience points. Hallelujah!");
+        //} else {getLogger().info("It's not working, sugar...");}
     }
     @Override
     public void onDisable() {
@@ -62,4 +72,13 @@ public final class Main extends JavaPlugin implements Listener {
         playerLevelManager.addExperience(event.getPlayer(), 10);
         getLogger().info("Adding experience to " + event.getPlayer().getScoreboardEntryName());
     }
+
+    /*@EventHandler
+    public void onEntityDeath(EntityDeathEvent event) {
+        Entity entity = event.getEntity();
+        if(entity.getLastDamageCause() instanceof Player) {
+            playerLevelManager.addExperience(((Player) entity.getLastDamageCause()), 10);
+            getLogger().info("Adding experience to " + ((Player) entity.getLastDamageCause()).getScoreboardEntryName());
+        }
+    }*/
 }
