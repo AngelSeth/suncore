@@ -18,18 +18,22 @@ public final class Main extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        PlayerDataManager playerDataManager = new PlayerDataManager(this);
-        playerLevelManager = new PlayerLevelManager();
+        this.playerDataManager = new PlayerDataManager(this);
+        this.playerLevelManager = new PlayerLevelManager(playerDataManager);
         getServer().getPluginManager().registerEvents(this, this);
         getLogger().info("SunCore has been enabled!");
+        getLogger().info("PlayerDataManager initialized: " + (playerDataManager != null));
     }
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
+        getLogger().info("Accessing PlayerDataManager: " + (getPlayerDataManager() != null));
         Player player = event.getPlayer();
         //will have to read playerclass to replace "Archer"
         String playerClass = "Archer";
         int level = playerLevelManager.getPlayerLevel(player, playerClass);
+        player.sendMessage("Your current level as the class, " + playerClass + ", is " + level);
         int experience = playerLevelManager.getPlayerExperience(player, playerClass);
+        player.sendMessage("Your currently have " + experience + " experience points");
     }
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {

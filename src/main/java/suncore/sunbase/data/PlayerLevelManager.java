@@ -7,8 +7,14 @@ import java.util.UUID;
 
 public class PlayerLevelManager {
     private PlayerDataManager playerDataManager;
+    //hash for saving the data in the yaml
     private final HashMap<UUID, Integer> playerLevels = new HashMap<>();
     private final HashMap<UUID, Integer> playerExperience = new HashMap<>();
+
+    //to call playerdatamanager
+    public PlayerLevelManager(PlayerDataManager playerDataManager) {
+        this.playerDataManager = playerDataManager;
+    }
 
     public int getLevel(Player player) {
         return playerLevels.getOrDefault(player.getUniqueId(), 1);
