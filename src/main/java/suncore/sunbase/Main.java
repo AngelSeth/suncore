@@ -31,8 +31,10 @@ public final class Main extends JavaPlugin implements Listener {
         //will have to read playerclass to replace "Archer"
         String playerClass = "Archer";
         int level = playerLevelManager.getPlayerLevel(player, playerClass);
+        playerLevelManager.setLevel(player, level);
         player.sendMessage("Your current level as the class, " + playerClass + ", is " + level);
         int experience = playerLevelManager.getPlayerExperience(player, playerClass);
+        playerLevelManager.addExperience(player, experience);
         player.sendMessage("Your currently have " + experience + " experience points");
     }
     @EventHandler
