@@ -9,38 +9,37 @@ import java.util.UUID;
 public class PlayerLevelManager {
     private PlayerDataManager playerDataManager;
     //hash for saving the data in the yaml
-    private final HashMap<UUID, Integer> playerLevels = new HashMap<>();
-    private final HashMap<UUID, Integer> playerExperience = new HashMap<>();
+    private final HashMap<UUID, HashMap<String, Integer>> playerLevels = new HashMap<>();
+    private final HashMap<UUID, HashMap<String, Integer>> playerExperience = new HashMap<>();
 
     //to call playerdatamanager
     public PlayerLevelManager(PlayerDataManager playerDataManager) {
         this.playerDataManager = playerDataManager;
     }
 
-    public int getLevel(Player player) {
-        return playerLevels.getOrDefault(player.getUniqueId(), 1);
+    public int getLevel(Player player, String playerClass) {
+        return playerLevels.getOrDefault(player.getUniqueId(), new HashMap<>()).getOrDefault(playerClass, 1);
     }
-    public void setLevel(Player player, int level) {
-        playerLevels.put(player.getUniqueId(), level);
+    public void setLevel(Player player, String playerClass, int level) {
+        playerLevels.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>()).put(playerClass, level);
     }
-    public int getExperience(Player player) {
-        return playerExperience.getOrDefault(player.getUniqueId(), 0);
+    public int getExperience(Player player, String playerClass) {
+        return playerExperience.getOrDefault(player.getUniqueId(), new HashMap<>()).getOrDefault(playerClass, 0);
     }
 
-    public void addExperience(Player player, int amount) {
-        int currentExp = getExperience(player);
+    public void addExperience(Player player, String playerClass, int amount) {
+        int currentExp = getExperience(player, playerClass);
         int newExp = currentExp + amount;
-        int level = getLevel(player);
+        int level = getLevel(player, playerClass);
         int expToNextLevel = calculateExpToNextLevel(level);
 
         if (newExp >= expToNextLevel) {
             newExp -= expToNextLevel;
             level++;
-            setLevel(player, level);
             player.sendMessage("Congratulations, you've reached level " + level + "!");
+            setLevel(player, playerClass, level);
         }
-
-        playerExperience.put(player.getUniqueId(), newExp);
+        playerExperience.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>()).put(playerClass, newExp);
     }
 
     private int calculateExpToNextLevel(int currentLevel) {
@@ -57,7 +56,7 @@ public class PlayerLevelManager {
         //test saving
         //playerDataManager.get().set(playerUUID + "." + "test.path", "testValue");
         String lvlPath = playerUUID + "." + playerClass + ".level";
-        System.out.println("Saving path: " + lvlPath);
+        //System.out.println("Saving path: " + lvlPath);
         playerDataManager.get().set(lvlPath, level);
         playerDataManager.get().set(playerUUID + "." + playerClass + ".experience", experience);
         playerDataManager.save();

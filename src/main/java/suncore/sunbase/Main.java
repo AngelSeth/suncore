@@ -36,9 +36,9 @@ public final class Main extends JavaPlugin implements Listener {
         //will have to read playerclass to replace "Archer"
         String playerClass = "Archer";
         int level = playerLevelManager.getPlayerLevel(player, playerClass);
-        playerLevelManager.setLevel(player, level);
+        playerLevelManager.setLevel(player, playerClass, level);
         int experience = playerLevelManager.getPlayerExperience(player, playerClass);
-        playerLevelManager.addExperience(player, experience);
+        playerLevelManager.addExperience(player, playerClass, experience);
         player.sendMessage("Your current level as the class, " + playerClass + ", is " + level);
         player.sendMessage("Your currently have " + experience + " experience points");
     }
@@ -49,8 +49,8 @@ public final class Main extends JavaPlugin implements Listener {
         //will have to read playerclass to replace "Archer"
         String playerClass = "Archer";
         //loading the data
-        int lLevel = playerLevelManager.getLevel(player);
-        int lExperience = playerLevelManager.getExperience(player);
+        int lLevel = playerLevelManager.getLevel(player, playerClass);
+        int lExperience = playerLevelManager.getExperience(player, playerClass);
         //saving the data
         //if (playerUUID != null && playerClass != null && level >= 0 && experience >= 0) {
             playerLevelManager.savePlayerData(event.getPlayer(), playerClass, lLevel, lExperience);
@@ -69,7 +69,8 @@ public final class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        playerLevelManager.addExperience(event.getPlayer(), 10);
+        String playerClass = "Archer";
+        playerLevelManager.addExperience(event.getPlayer(), playerClass, 10);
         getLogger().info("Adding experience to " + event.getPlayer().getScoreboardEntryName());
     }
 

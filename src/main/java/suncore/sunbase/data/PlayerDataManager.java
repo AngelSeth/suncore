@@ -41,7 +41,7 @@ public class PlayerDataManager {
             customFile.save(file);
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Could not save the file");
+            //System.out.println("Could not save the file");
         }
     }
 
