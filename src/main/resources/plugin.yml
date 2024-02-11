@@ -1,0 +1,5 @@
+name: Sunbase
+version: '${project.version}'
+main: suncore.sunbase.Main
+api-version: 1.20
+authors: [ mythcore, yagah ]
