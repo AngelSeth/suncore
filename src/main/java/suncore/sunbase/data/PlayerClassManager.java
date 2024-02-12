@@ -1,57 +1,64 @@
 package suncore.sunbase.data;
 
 import org.bukkit.entity.Player;
-import suncore.sunbase.classes.Archer;
+import suncore.sunbase.Main;
 import suncore.sunbase.classes.PlayerClass;
+import suncore.sunbase.classes.Archer;
 import suncore.sunbase.classes.Warrior;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PlayerClassManager {
     private PlayerDataManager playerDataManager;
     private Map<UUID, PlayerClass> playerClassAssignments = new HashMap<>();
-    private List<PlayerClass> availableClasses = new ArrayList<>();
-
+    private Map<String, Supplier<PlayerClass>> registeredClasses = new HashMap<>();
+    //private Logger logger;
     public PlayerClassManager(PlayerDataManager playerDataManager) {
         this.playerDataManager = playerDataManager;
+        //this.logger = logger;
+        // Register available classes
+        registerClass("Archer", Archer::new);
+        registerClass("Warrior", Warrior::new);
+        // Add more classes as needed
+    }
 
-        // Initialize availableClasses with instances of your player classes
-        availableClasses.add(new Archer());
-        availableClasses.add(new Warrior());
+    private void registerClass(String className, Supplier<PlayerClass> classConstructor) {
+        registeredClasses.put(className, classConstructor);
     }
 
     public void assignClassToPlayer(Player player, PlayerClass playerClass) {
         playerClassAssignments.put(player.getUniqueId(), playerClass);
+        savePlayerClass(player, playerClass);
+        // Consider saving the class assignment here or in a batch operation elsewhere
     }
 
+    private void savePlayerClass(Player player, PlayerClass playerClass) {
+        UUID playerUUID = player.getUniqueId();
+        String className = playerClass.getName();
+        // Save the class name to your data storage
+        playerDataManager.get().set(playerUUID + ".class", className);
+        playerDataManager.save();
+    }
 
     public PlayerClass getPlayerClass(Player player) {
-        return playerClassAssignments.getOrDefault(player.getUniqueId(), new Archer()); // Ensure there's a default class
+        return playerClassAssignments.computeIfAbsent(player.getUniqueId(), uuid -> loadPlayerClass(player));
     }
 
     public PlayerClass loadPlayerClass(Player player) {
         UUID playerUUID = player.getUniqueId();
-        // Attempt to retrieve player class name
-        String className = playerDataManager.get().getString(playerUUID + ".class");
+        String className = playerDataManager.get().getString(playerUUID + ".class", "Warrior"); // Default to Warrior
 
-
-        // Check if className is null or empty and assign a default class name if necessary
-        if (className == null || className.isEmpty()) {
-            className = "Archer"; // Use your default class name
+        Supplier<PlayerClass> classConstructor = registeredClasses.get(className);
+        if (classConstructor != null) {
+            return classConstructor.get();
+        } else {
+            // Log an error if the class name does not match any registered class
+            //getLogger().log(Level.WARNING, "Unrecognized class '" + className + "' for player " + player.getName() + ". Assigning default class.");
+            return new Warrior(); // Return a default class instance
         }
-        // Determine the player's class based on the saved class name
-        // This is a simple example; you might have a more sophisticated method for instantiating classes
-        PlayerClass playerClass;
-        switch (className) {
-            case "Archer":
-                playerClass = new Archer();
-                break;
-            // Add cases for other classes
-            default:
-                playerClass = new Warrior(); // Fallback class
-                break;
-        }
-
-        return playerClass;
     }
 }

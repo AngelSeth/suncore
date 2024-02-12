@@ -68,7 +68,7 @@ public class PlayerLevelManager {
         playerDataManager.save();
     }
 
-    public void saveTestPlayerData() {
+   /* public void saveTestPlayerData() {
         UUID testUUID = UUID.fromString("5af5b320-d5b9-499b-8903-9e14744438f6");
         String testPlayerClass = "Archer";
         int testLevel = 6;
@@ -77,7 +77,7 @@ public class PlayerLevelManager {
         playerDataManager.get().set(testUUID + "." + testPlayerClass + ".level", testLevel);
         playerDataManager.get().set(testUUID + "." + testPlayerClass + ".experience", testExperience);
         playerDataManager.save();
-    }
+    }*/
 
 
 
