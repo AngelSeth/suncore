@@ -9,6 +9,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import suncore.sunbase.classes.PlayerClass;
+import suncore.sunbase.data.PlayerClassManager;
 import suncore.sunbase.data.PlayerDataManager;
 import suncore.sunbase.data.PlayerLevelManager;
 
@@ -18,12 +20,14 @@ public final class Main extends JavaPlugin implements Listener {
 
     private PlayerLevelManager playerLevelManager;
     private PlayerDataManager playerDataManager;
+    private PlayerClassManager playerClassManager;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         this.playerDataManager = new PlayerDataManager(this);
         this.playerLevelManager = new PlayerLevelManager(playerDataManager);
+        this.playerClassManager = new PlayerClassManager(playerDataManager);
         getServer().getPluginManager().registerEvents(this, this);
         getLogger().info("SunCore has been enabled!");
         getLogger().info("PlayerDataManager initialized: " + (playerDataManager != null));
@@ -33,13 +37,13 @@ public final class Main extends JavaPlugin implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         getLogger().info("Accessing PlayerDataManager: " + (getPlayerDataManager() != null));
         Player player = event.getPlayer();
-        //will have to read playerclass to replace "Archer"
-        String playerClass = "Archer";
+        PlayerClass playerClass = playerClassManager.loadPlayerClass(player);
         int level = playerLevelManager.getPlayerLevel(player, playerClass);
         playerLevelManager.setLevel(player, playerClass, level);
         int experience = playerLevelManager.getPlayerExperience(player, playerClass);
         playerLevelManager.addExperience(player, playerClass, experience);
-        player.sendMessage("Your current level as the class, " + playerClass + ", is " + level);
+        player.sendMessage("You are currently a " + playerClass.getName());
+        player.sendMessage("Your current level as the class, " + playerClass.getName() + ", is " + level);
         player.sendMessage("Your currently have " + experience + " experience points");
     }
     @EventHandler
@@ -47,7 +51,7 @@ public final class Main extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         UUID playerUUID = player.getUniqueId();
         //will have to read playerclass to replace "Archer"
-        String playerClass = "Archer";
+        PlayerClass playerClass = playerClassManager.loadPlayerClass(player);
         //loading the data
         int lLevel = playerLevelManager.getLevel(player, playerClass);
         int lExperience = playerLevelManager.getExperience(player, playerClass);
@@ -69,9 +73,10 @@ public final class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        String playerClass = "Archer";
+        Player player = event.getPlayer();
+        PlayerClass playerClass = playerClassManager.getPlayerClass(player); // Retrieve the player's class
         playerLevelManager.addExperience(event.getPlayer(), playerClass, 10);
-        getLogger().info("Adding experience to " + event.getPlayer().getScoreboardEntryName());
+        getLogger().info("Adding experience to " + player.getName() + " as a " + playerClass.getName());
     }
 
     /*@EventHandler

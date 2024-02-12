@@ -2,6 +2,8 @@ package suncore.sunbase.data;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import suncore.sunbase.classes.Archer;
+import suncore.sunbase.classes.PlayerClass;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -17,18 +19,19 @@ public class PlayerLevelManager {
         this.playerDataManager = playerDataManager;
     }
 
-    public int getLevel(Player player, String playerClass) {
-        return playerLevels.getOrDefault(player.getUniqueId(), new HashMap<>()).getOrDefault(playerClass, 1);
+    public int getLevel(Player player, PlayerClass playerClass) {
+        return playerLevels.getOrDefault(player.getUniqueId(), new HashMap<>()).getOrDefault(playerClass.getName(), 1);
     }
-    public void setLevel(Player player, String playerClass, int level) {
-        playerLevels.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>()).put(playerClass, level);
+    public void setLevel(Player player, PlayerClass playerClass, int level) {
+        playerLevels.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>()).put(playerClass.getName(), level);
     }
-    public int getExperience(Player player, String playerClass) {
-        return playerExperience.getOrDefault(player.getUniqueId(), new HashMap<>()).getOrDefault(playerClass, 0);
+    public int getExperience(Player player, PlayerClass playerClass) {
+        return playerExperience.getOrDefault(player.getUniqueId(), new HashMap<>()).getOrDefault(playerClass.getName(), 0);
     }
 
-    public void addExperience(Player player, String playerClass, int amount) {
-        int currentExp = getExperience(player, playerClass);
+    public void addExperience(Player player, PlayerClass playerClass, int amount) {
+        HashMap<String, Integer> classExperience = playerExperience.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>());
+        int currentExp = classExperience.getOrDefault(playerClass.getName(), 0);
         int newExp = currentExp + amount;
         int level = getLevel(player, playerClass);
         int expToNextLevel = calculateExpToNextLevel(level);
@@ -39,7 +42,7 @@ public class PlayerLevelManager {
             player.sendMessage("Congratulations, you've reached level " + level + "!");
             setLevel(player, playerClass, level);
         }
-        playerExperience.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>()).put(playerClass, newExp);
+        classExperience.put(playerClass.getName(), newExp);
     }
 
     private int calculateExpToNextLevel(int currentLevel) {
@@ -49,16 +52,19 @@ public class PlayerLevelManager {
 
 
     //saving player Level, etc
-    public void savePlayerData(Player player, String playerClass, int level, int experience) {
+    public void savePlayerData(Player player, PlayerClass playerClass, int level, int experience) {
         UUID playerUUID = player.getUniqueId();
+        String className = playerClass.getName();
+        String basePath = playerUUID + "." + className;
         //eventually save by world
         //World world = player.getWorld();
         //test saving
         //playerDataManager.get().set(playerUUID + "." + "test.path", "testValue");
-        String lvlPath = playerUUID + "." + playerClass + ".level";
+        //String lvlPath = playerUUID + "." + playerClass + ".level";
         //System.out.println("Saving path: " + lvlPath);
-        playerDataManager.get().set(lvlPath, level);
-        playerDataManager.get().set(playerUUID + "." + playerClass + ".experience", experience);
+        playerDataManager.get().set(basePath + ".class", className);
+        playerDataManager.get().set(basePath + ".level", level);
+        playerDataManager.get().set(basePath + ".experience", experience);
         playerDataManager.save();
     }
 
@@ -73,12 +79,15 @@ public class PlayerLevelManager {
         playerDataManager.save();
     }
 
-    public int getPlayerLevel(Player player, String playerClass) {
+
+
+
+    public int getPlayerLevel(Player player, PlayerClass playerClass) {
         UUID playerUUID = player.getUniqueId();
         return playerDataManager.get().getInt(playerUUID + "." + playerClass + ".level", 1); // Default level is 1
     }
 
-    public int getPlayerExperience(Player player, String playerClass) {
+    public int getPlayerExperience(Player player, PlayerClass playerClass) {
         UUID playerUUID = player.getUniqueId();
         return playerDataManager.get().getInt(playerUUID + "." + playerClass + ".experience", 0); // Default exp is 0
     }
