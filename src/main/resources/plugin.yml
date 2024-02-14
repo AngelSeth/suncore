@@ -7,3 +7,6 @@ commands:
   class:
     description: Change your player class
     usage: /class <classname>
+  abilities:
+    description: Check the abilities for each class
+    usage: /abilities <classname>

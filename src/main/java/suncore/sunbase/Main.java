@@ -13,6 +13,7 @@ import suncore.sunbase.classes.PlayerClass;
 import suncore.sunbase.data.PlayerClassManager;
 import suncore.sunbase.data.PlayerDataManager;
 import suncore.sunbase.data.PlayerLevelManager;
+import suncore.sunbase.util.AbilitiesCommand;
 import suncore.sunbase.util.ChangeClassCommand;
 
 import java.util.UUID;
@@ -28,14 +29,15 @@ public final class Main extends JavaPlugin implements Listener {
         // Plugin startup logic
         this.playerDataManager = new PlayerDataManager(this);
         this.playerLevelManager = new PlayerLevelManager(playerDataManager);
-        this.playerClassManager = new PlayerClassManager(playerDataManager);
+        this.playerClassManager = new PlayerClassManager(playerDataManager, playerLevelManager);
         getServer().getPluginManager().registerEvents(this, this);
         getLogger().info("SunCore has been enabled!");
         getLogger().info("PlayerDataManager initialized: " + (playerDataManager != null));
         //playerLevelManager.saveTestPlayerData();
 
         //load commands
-        this.getCommand("class").setExecutor(new ChangeClassCommand(playerClassManager));
+        this.getCommand("class").setExecutor(new ChangeClassCommand(playerClassManager, playerLevelManager));
+        this.getCommand("abilities").setExecutor(new AbilitiesCommand(playerClassManager));
     }
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {

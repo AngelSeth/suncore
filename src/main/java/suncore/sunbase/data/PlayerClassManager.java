@@ -14,16 +14,22 @@ import java.util.logging.Logger;
 
 public class PlayerClassManager {
     private PlayerDataManager playerDataManager;
+    private PlayerLevelManager playerLevelManager;
     private Map<UUID, PlayerClass> playerClassAssignments = new HashMap<>();
     private Map<String, Supplier<PlayerClass>> registeredClasses = new HashMap<>();
     //private Logger logger;
-    public PlayerClassManager(PlayerDataManager playerDataManager) {
+    public PlayerClassManager(PlayerDataManager playerDataManager, PlayerLevelManager playerLevelManager) {
         this.playerDataManager = playerDataManager;
+        this.playerLevelManager = playerLevelManager;
+        registerClasses();
         //this.logger = logger;
-        // Register available classes
-        registerClass("Archer", Archer::new);
-        registerClass("Warrior", Warrior::new);
-        // Add more classes as needed
+    }
+
+
+    private void registerClasses() {
+        // Assuming playerLevelManager is already initialized and available
+        registerClass("warrior", () -> new Warrior(playerLevelManager));
+        registerClass("archer", () -> new Archer(playerLevelManager));
     }
 
     private void registerClass(String className, Supplier<PlayerClass> classConstructor) {
@@ -58,7 +64,17 @@ public class PlayerClassManager {
         } else {
             // Log an error if the class name does not match any registered class
             //getLogger().log(Level.WARNING, "Unrecognized class '" + className + "' for player " + player.getName() + ". Assigning default class.");
-            return new Warrior(); // Return a default class instance
+            return new Warrior(playerLevelManager); // Return a default class instance
         }
     }
+
+    public PlayerClass getClassByName(String className) {
+        // Attempt to find a class constructor using the provided class name
+        Supplier<PlayerClass> classConstructor = registeredClasses.get(className.toLowerCase());
+        if (classConstructor != null) {
+            return classConstructor.get(); // Return a new instance of the found class
+        }
+        return null; // Return null if no class was found
+    }
+
 }

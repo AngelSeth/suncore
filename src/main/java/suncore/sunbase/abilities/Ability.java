@@ -12,6 +12,8 @@ public interface Ability {
     //method to start ability cooldown
     void startCooldown(Player player);
 
+    int getUnlockLevel();
+
     /*//Implement if set up is required for abilities
     default void setup (Player player){
         // Default implementation (if any)

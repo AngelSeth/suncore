@@ -6,9 +6,12 @@ import org.bukkit.util.Vector;
 public class LeapAbility implements Ability{
     private final long cooldownTime; //cooldown time in milliseconds
     private long lastUsed = 0; //last time ability was used
+    private final int unlockLevel;
 
-    public LeapAbility(long cooldownTime) {
+
+    public LeapAbility(long cooldownTime, int unlockLevel) {
         this.cooldownTime = cooldownTime;
+        this.unlockLevel = unlockLevel;
     }
     @Override
     public void execute(Player player) {
@@ -33,5 +36,10 @@ public class LeapAbility implements Ability{
     @Override
     public void startCooldown(Player player) {
         lastUsed = System.currentTimeMillis();
+    }
+
+    @Override
+    public int getUnlockLevel() {
+        return unlockLevel;
     }
 }
