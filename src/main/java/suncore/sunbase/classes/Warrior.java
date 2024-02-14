@@ -7,6 +7,7 @@ import suncore.sunbase.data.PlayerLevelManager;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class Warrior implements PlayerClass{
     private Ability leapAbility;
@@ -43,5 +44,12 @@ public class Warrior implements PlayerClass{
     @Override
     public List<Ability> getAbilities() {
         return abilities;
+    }
+
+    @Override
+    public Optional<Ability> getAbilityByName(String name) {
+        return abilities.stream()
+                .filter(ability -> ability.getName().equalsIgnoreCase(name))
+                .findFirst();
     }
 }

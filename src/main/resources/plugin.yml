@@ -10,3 +10,6 @@ commands:
   abilities:
     description: Check the abilities for each class
     usage: /abilities <classname>
+  bind:
+    description: Bind an ability to a hotbar slot.
+    usage: /bind <ability> <slot>

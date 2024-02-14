@@ -42,4 +42,9 @@ public class LeapAbility implements Ability{
     public int getUnlockLevel() {
         return unlockLevel;
     }
+
+    @Override
+    public String getName() {
+        return "Leap";
+    }
 }

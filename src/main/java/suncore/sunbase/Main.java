@@ -4,16 +4,21 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import suncore.sunbase.abilities.Ability;
+import suncore.sunbase.abilities.AbilityBinder;
 import suncore.sunbase.classes.PlayerClass;
 import suncore.sunbase.data.PlayerClassManager;
 import suncore.sunbase.data.PlayerDataManager;
 import suncore.sunbase.data.PlayerLevelManager;
 import suncore.sunbase.util.AbilitiesCommand;
+import suncore.sunbase.util.BindAbilityCommand;
 import suncore.sunbase.util.ChangeClassCommand;
 
 import java.util.UUID;
@@ -34,10 +39,11 @@ public final class Main extends JavaPlugin implements Listener {
         getLogger().info("SunCore has been enabled!");
         getLogger().info("PlayerDataManager initialized: " + (playerDataManager != null));
         //playerLevelManager.saveTestPlayerData();
-
+        //register listeners
         //load commands
         this.getCommand("class").setExecutor(new ChangeClassCommand(playerClassManager, playerLevelManager));
         this.getCommand("abilities").setExecutor(new AbilitiesCommand(playerClassManager));
+        this.getCommand("bind").setExecutor(new BindAbilityCommand(playerClassManager));
     }
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -81,7 +87,24 @@ public final class Main extends JavaPlugin implements Listener {
         playerLevelManager.addExperience(event.getPlayer(), playerClass, 10);
         getLogger().info("Adding experience to " + player.getName() + " as a " + playerClass.getName());
     }
-
+    //to detect left click
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
+            Player player = event.getPlayer();
+            int slot = player.getInventory().getHeldItemSlot();
+            Ability ability = AbilityBinder.getBoundAbility(player, slot);
+            if (ability != null) {
+                if (!ability.isOnCooldown(player)) {
+                    ability.execute(player);
+                    // Optionally, start cooldown
+                    ability.startCooldown(player);
+                } else {
+                    player.sendMessage("Ability is on cooldown.");
+                }
+            }
+        }
+    }
     /*@EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
         Entity entity = event.getEntity();

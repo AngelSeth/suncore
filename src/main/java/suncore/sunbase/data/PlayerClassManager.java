@@ -2,11 +2,13 @@ package suncore.sunbase.data;
 
 import org.bukkit.entity.Player;
 import suncore.sunbase.Main;
+import suncore.sunbase.abilities.Ability;
 import suncore.sunbase.classes.PlayerClass;
 import suncore.sunbase.classes.Archer;
 import suncore.sunbase.classes.Warrior;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -75,6 +77,10 @@ public class PlayerClassManager {
             return classConstructor.get(); // Return a new instance of the found class
         }
         return null; // Return null if no class was found
+    }
+    public Optional<Ability> getAbilityByName(Player player, String abilityName) {
+        PlayerClass playerClass = getPlayerClass(player);
+        return playerClass.getAbilityByName(abilityName);
     }
 
 }

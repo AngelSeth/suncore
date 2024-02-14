@@ -13,6 +13,7 @@ public interface Ability {
     void startCooldown(Player player);
 
     int getUnlockLevel();
+    String getName();
 
     /*//Implement if set up is required for abilities
     default void setup (Player player){
